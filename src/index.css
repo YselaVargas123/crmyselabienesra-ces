@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --app: #F2F4F8; --card: #FFFFFF; --line: #D5DCE8; --ink: #1B2433; --muted: #4F5B70; --head: #EEF1F6;
+  --ok: #0C7A45; --warn: #8A5A00; --danger: #A3121F;
+}
+.dark {
+  --app: #15171C; --card: #1E2128; --line: #4A505C; --ink: #E8EAEE; --muted: #A4ABB8; --head: #262A33;
+  --ok: #4CC38A; --warn: #E8B04A; --danger: #F08A92;
+}
+html, body, #root { height: 100%; }
+body { background: var(--app); color: var(--ink); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 3px solid #4F7BD6; outline-offset: 2px; }
