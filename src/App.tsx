@@ -6,11 +6,13 @@ import Login from "./pages/Login";
 import Hoy from "./pages/Hoy";
 import Pendiente from "./pages/Pendiente";
 import Contactos from "./pages/Contactos";
+import Pipeline from "./pages/Pipeline";
+import Propiedades from "./pages/Propiedades";
 import { ToastProvider } from "./components/Toast";
 
 const SECCIONES: [string, string, string][] = [
-  ["actividades", "Actividades", "Fase 4"], ["pipeline", "Pipeline", "Fase 3"], ["cierre", "Cierre del día", "Fase 4"],
-  ["propiedades", "Propiedades", "Fase 3"], ["vencimientos", "Vencimientos", "Fase 4"],
+  ["actividades", "Actividades", "Fase 4"], ["cierre", "Cierre del día", "Fase 4"],
+  ["vencimientos", "Vencimientos", "Fase 4"],
   ["resumen", "Resumen", "Fase 5"], ["reportes", "Reportes", "Fase 5"], ["configuracion", "Configuración", "Fase 6"],
 ];
 
@@ -23,6 +25,8 @@ function Rutas() {
       <Route element={<Layout />}>
         <Route index element={<Hoy />} />
         <Route path="contactos" element={<Contactos />} />
+        <Route path="pipeline" element={<Pipeline />} />
+        <Route path="propiedades" element={<Propiedades />} />
         {SECCIONES.map(([ruta, t, f]) => <Route key={ruta} path={ruta} element={<Pendiente titulo={t} fase={f} />} />)}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
