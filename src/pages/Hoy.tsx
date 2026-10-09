@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { salud, usd } from "../lib/format";
+import { completarActividad, posponerActividad } from "../lib/actividades";
 import { Barra, Boton, Etiqueta, Tarjeta, TelefonoChip, Vacio, tonoSalud } from "../components/ui";
 
 interface Fila {
@@ -9,27 +10,28 @@ interface Fila {
   contact: { first_name: string; last_name: string; whatsapp: string | null; phone: string | null } | null;
   opportunity: { amount_usd: number; last_activity_at: string } | null;
 }
-interface Panel { vencidas: number; hoy: number; leadsSinAtender: number }
+interface Panel { vencidas: number; hoy: number; leadsSinAtender: number; hechas: number }
 
 const saludo = () => { const h = new Date().getHours(); return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches"; };
 
 export default function Hoy() {
   const { perfil } = useAuth();
   const [filas, setFilas] = useState<Fila[] | null>(null);
-  const [panel, setPanel] = useState<Panel>({ vencidas: 0, hoy: 0, leadsSinAtender: 0 });
+  const [panel, setPanel] = useState<Panel>({ vencidas: 0, hoy: 0, leadsSinAtender: 0, hechas: 0 });
   const [error, setError] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
     const fin = new Date(); fin.setHours(23, 59, 59, 999);
     const inicio = new Date(); inicio.setHours(0, 0, 0, 0);
-    const [act, leads] = await Promise.all([
+    const [act, leads, hechas] = await Promise.all([
       supabase.from("activities")
         .select("id,title,due_at,priority,contact:contacts(first_name,last_name,whatsapp,phone),opportunity:opportunities(amount_usd,last_activity_at)")
         .eq("status", "Pendiente").lte("due_at", fin.toISOString()).order("due_at"),
       supabase.from("contacts").select("id", { count: "exact", head: true }).eq("status", "Lead activo").eq("archived", false).is("last_interaction_at", null),
+      supabase.from("activities").select("id", { count: "exact", head: true }).eq("status", "Completada").gte("updated_at", inicio.toISOString()),
     ]);
-    if (act.error || leads.error) { setError("No se pudieron cargar tus tareas. Revisa tu conexión e inténtalo de nuevo."); setFilas([]); return; }
+    if (act.error || leads.error || hechas.error) { setError("No se pudieron cargar tus tareas. Revisa tu conexión e inténtalo de nuevo."); setFilas([]); return; }
     setError(null);
     const lista = (act.data ?? []) as unknown as Fila[];
     lista.sort((a, b) => (b.opportunity?.amount_usd ?? 0) - (a.opportunity?.amount_usd ?? 0));
@@ -38,18 +40,16 @@ export default function Hoy() {
       vencidas: lista.filter((f) => new Date(f.due_at) < inicio).length,
       hoy: lista.filter((f) => new Date(f.due_at) >= inicio).length,
       leadsSinAtender: leads.count ?? 0,
+      hechas: hechas.count ?? 0,
     });
   }, []);
   useEffect(() => { void cargar(); }, [cargar]);
 
   const accion = async (f: Fila, tipo: "completar" | "posponer") => {
     setOcupado(f.id);
-    const cambio = tipo === "completar"
-      ? { status: "Completada" }
-      : { due_at: new Date(new Date(f.due_at).getTime() + 86_400_000).toISOString() };
-    const { error: e } = await supabase.from("activities").update(cambio).eq("id", f.id);
+    const bien = tipo === "completar" ? await completarActividad(f.id) : await posponerActividad(f, "manana");
     setOcupado(null);
-    if (e) setError("No se pudo guardar el cambio. Inténtalo de nuevo.");
+    if (!bien) setError("No se pudo guardar el cambio. Inténtalo de nuevo.");
     else await cargar();
   };
   const enJuego = useMemo(() => (filas ?? []).reduce((a, f) => a + (f.opportunity?.amount_usd ?? 0), 0), [filas]);
@@ -88,8 +88,8 @@ export default function Hoy() {
         </Tarjeta>
         <Tarjeta className="h-fit">
           <h2 className="mb-2 font-bold">Tu día</h2>
-          <div className="mb-1 text-xs text-muted">Tareas de hoy completadas: se mostrará con las metas de actividad</div>
-          <Barra valor={0} />
+          <div className="mb-1 text-xs text-muted">Completadas hoy: {panel.hechas} de {panel.hechas + (filas?.length ?? 0)}</div>
+          <Barra valor={panel.hechas + (filas?.length ?? 0) > 0 ? (panel.hechas / (panel.hechas + (filas?.length ?? 0))) * 100 : 0} />
           <dl className="mt-3 grid gap-2 text-sm">
             <div className="flex justify-between"><dt>Vencidas</dt><dd className={`font-bold ${panel.vencidas ? "text-danger" : ""}`}>{panel.vencidas ? "! " : ""}{panel.vencidas}</dd></div>
             <div className="flex justify-between"><dt>Para hoy</dt><dd className="font-bold">{panel.hoy}</dd></div>

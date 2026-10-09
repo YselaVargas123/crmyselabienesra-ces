@@ -42,10 +42,6 @@ export default function OportunidadForm({ pipelineId, etapaInicial, contactoInic
     if (f.property_id) payload.property_id = f.property_id;
     const { data, error } = await supabase.from("opportunities").insert(payload).select("id").single();
     if (error || !data) { setGuardando(false); avisar("No se pudo crear la oportunidad. Inténtalo de nuevo.", "error"); return; }
-    await supabase.from("timeline_events").insert({
-      contact_id: contacto.id, opportunity_id: data.id, event_type: "oportunidad_creada",
-      description: `Nueva oportunidad «${f.title.trim()}» en la etapa «${etapaInicial.name}»`, origin: "sistema",
-    });
     setGuardando(false);
     avisar("Oportunidad creada.");
     onGuardado();
