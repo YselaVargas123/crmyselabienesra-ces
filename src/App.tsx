@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { AppProvider } from "./context/AppContext";
@@ -11,10 +12,13 @@ import Propiedades from "./pages/Propiedades";
 import Actividades from "./pages/Actividades";
 import Cierre from "./pages/Cierre";
 import Vencimientos from "./pages/Vencimientos";
+import Reportes from "./pages/Reportes";
 import { ToastProvider } from "./components/Toast";
 
+const Resumen = lazy(() => import("./pages/Resumen"));
+
 const SECCIONES: [string, string, string][] = [
-  ["resumen", "Resumen", "Fase 5"], ["reportes", "Reportes", "Fase 5"], ["configuracion", "Configuración", "Fase 6"],
+  ["configuracion", "Configuración", "Fase 6"],
 ];
 
 function Rutas() {
@@ -31,6 +35,8 @@ function Rutas() {
         <Route path="actividades" element={<Actividades />} />
         <Route path="cierre" element={<Cierre />} />
         <Route path="vencimientos" element={<Vencimientos />} />
+        <Route path="resumen" element={<Suspense fallback={<div className="text-sm text-muted" role="status">Cargando…</div>}><Resumen /></Suspense>} />
+        <Route path="reportes" element={<Reportes />} />
         {SECCIONES.map(([ruta, t, f]) => <Route key={ruta} path={ruta} element={<Pendiente titulo={t} fase={f} />} />)}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
