@@ -9,14 +9,16 @@ export const enlaceWa = (tel: string, texto?: string) =>
   `https://wa.me/${numeroWa(tel)}` + (texto ? `?text=${encodeURIComponent(texto)}` : "");
 
 export type Salud = "Al día" | "En riesgo" | "Estancada";
-/** Umbrales iniciales (se volverán editables en Configuración, Fase 6). */
-export const UMBRAL_RIESGO = 3;
-export const UMBRAL_ESTANCADA = 10;
+/** Umbrales de salud (días sin actividad). Se cargan desde Configuración al iniciar sesión. */
+export interface Umbrales { riesgo: number; estancada: number }
+let umbrales: Umbrales = { riesgo: 3, estancada: 10 };
+export const getUmbrales = (): Umbrales => umbrales;
+export const setUmbrales = (u: Umbrales): void => { umbrales = u; };
 export function salud(ultimaActividad: string | null | undefined): Salud {
   if (!ultimaActividad) return "Estancada";
   const dias = (Date.now() - new Date(ultimaActividad).getTime()) / 86_400_000;
-  if (dias <= UMBRAL_RIESGO) return "Al día";
-  if (dias <= UMBRAL_ESTANCADA) return "En riesgo";
+  if (dias <= umbrales.riesgo) return "Al día";
+  if (dias <= umbrales.estancada) return "En riesgo";
   return "Estancada";
 }
 export const iniciales = (nombre: string) =>

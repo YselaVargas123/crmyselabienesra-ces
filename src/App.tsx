@@ -5,7 +5,6 @@ import { AppProvider } from "./context/AppContext";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import Hoy from "./pages/Hoy";
-import Pendiente from "./pages/Pendiente";
 import Contactos from "./pages/Contactos";
 import Pipeline from "./pages/Pipeline";
 import Propiedades from "./pages/Propiedades";
@@ -13,13 +12,11 @@ import Actividades from "./pages/Actividades";
 import Cierre from "./pages/Cierre";
 import Vencimientos from "./pages/Vencimientos";
 import Reportes from "./pages/Reportes";
+import Configuracion from "./pages/Configuracion";
 import { ToastProvider } from "./components/Toast";
 
 const Resumen = lazy(() => import("./pages/Resumen"));
 
-const SECCIONES: [string, string, string][] = [
-  ["configuracion", "Configuración", "Fase 6"],
-];
 
 function Rutas() {
   const { session, perfil, cargando } = useAuth();
@@ -37,7 +34,7 @@ function Rutas() {
         <Route path="vencimientos" element={<Vencimientos />} />
         <Route path="resumen" element={<Suspense fallback={<div className="text-sm text-muted" role="status">Cargando…</div>}><Resumen /></Suspense>} />
         <Route path="reportes" element={<Reportes />} />
-        {SECCIONES.map(([ruta, t, f]) => <Route key={ruta} path={ruta} element={<Pendiente titulo={t} fase={f} />} />)}
+        <Route path="configuracion" element={<Configuracion />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

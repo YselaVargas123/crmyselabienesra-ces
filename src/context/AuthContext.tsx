@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase, configurado } from "../lib/supabase";
+import { cargarUmbrales } from "../lib/ajustes";
 
 export interface Perfil {
   id: string;
@@ -52,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await supabase.auth.signOut();
       } else {
         setError(null);
+        await cargarUmbrales();
         setPerfil(data as Perfil);
       }
       setCargando(false);
