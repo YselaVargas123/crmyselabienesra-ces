@@ -4,7 +4,9 @@ import { configurado } from "../lib/supabase";
 import { Boton } from "../components/ui";
 
 export default function Login() {
-  const { entrar, error: errorSesion } = useAuth();
+  const { entrar, recuperar, error: errorSesion } = useAuth();
+  const [recuperacion, setRecuperacion] = useState(false);
+  const [aviso, setAviso] = useState('');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -13,10 +15,15 @@ export default function Login() {
   const enviar = async (e: FormEvent) => {
     e.preventDefault();
     if (!email.includes("@")) return setError("Escribe un correo válido.");
-    if (password.length < 6) return setError("La contraseña tiene al menos 6 caracteres.");
+    if (!recuperacion && password.length < 6) return setError("La contraseña tiene al menos 6 caracteres.");
     setEnviando(true);
-    setError(await entrar(email.trim(), password));
-    setEnviando(false);
+    setError(null); setAviso('');
+    try {
+      const fallo = recuperacion ? await recuperar(email.trim()) : await entrar(email.trim(), password);
+      setError(fallo);
+      if (recuperacion && !fallo) setAviso('Si el correo corresponde a una cuenta, recibirás un enlace de recuperación. Revisa también spam.');
+    } catch { setError('No se pudo conectar con el servicio de acceso.'); }
+    finally { setEnviando(false); }
   };
   const mensaje = error ?? errorSesion;
   const campo = "mt-1 h-11 w-full rounded-md border-[1.5px] border-muted bg-card px-3 text-base";
@@ -34,11 +41,13 @@ export default function Login() {
           <label className="block text-sm font-semibold">Correo
             <input type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} className={campo} />
           </label>
-          <label className="mt-3 block text-sm font-semibold">Contraseña
+          {!recuperacion && <label className="mt-3 block text-sm font-semibold">Contraseña
             <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={campo} />
-          </label>
+          </label>}
           {mensaje && <p role="alert" className="mt-3 text-sm font-semibold text-danger">! {mensaje}</p>}
-          <Boton type="submit" variante="principal" cargando={enviando} disabled={!configurado} className="mt-4 w-full">Ingresar</Boton>
+          {aviso && <p role="status" className="mt-3 text-sm">{aviso}</p>}
+          <Boton type="submit" variante="principal" cargando={enviando} disabled={!configurado} className="mt-4 w-full">{recuperacion ? 'Enviar enlace de recuperación' : 'Ingresar'}</Boton>
+          <button type="button" className="mt-3 text-sm underline" onClick={() => { setRecuperacion(!recuperacion); setError(null); setAviso(''); }}>{recuperacion ? 'Volver al ingreso' : '¿Olvidaste tu contraseña?'}</button>
         </div>
       </form>
     </div>
