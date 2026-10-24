@@ -6,8 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit",
+    "whatsapp": "npm --prefix whatsapp-local start",
+    "test:whatsapp": "npm --prefix whatsapp-local test",
+    "test:database": "node tests/whatsapp-database.cjs"
   },
+  "engines": { "node": ">=22" },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
     "lucide-react": "^0.400.0",
@@ -17,6 +22,7 @@
     "recharts": "^2.12.7"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.11",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",

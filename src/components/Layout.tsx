@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { Home, ListChecks, Kanban, CheckCircle2, Users, Building2, CalendarClock, TrendingUp, BarChart3, Settings, Moon, Sun, LogOut, Menu, X, Search, Plus, type LucideIcon } from "lucide-react";
+import { Home, ListChecks, Kanban, CheckCircle2, Users, Building2, CalendarClock, TrendingUp, BarChart3, Settings, Moon, Sun, LogOut, Menu, X, Search, Plus, MessageCircle, type LucideIcon } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useApp, type Modo } from "../context/AppContext";
 import { Avatar, Boton } from "./ui";
@@ -9,6 +9,7 @@ import ContactoForm from "./ContactoForm";
 
 interface Item { a: string; t: string; i: LucideIcon }
 const GRUPOS: { g: string; items: Item[] }[] = [
+  { g: "Comunicación", items: [{ a: "/whatsapp", t: "WhatsApp", i: MessageCircle }] },
   { g: "Trabajo diario", items: [{ a: "/", t: "Hoy", i: Home }, { a: "/actividades", t: "Actividades", i: ListChecks }, { a: "/pipeline", t: "Pipeline", i: Kanban }, { a: "/cierre", t: "Cierre del día", i: CheckCircle2 }] },
   { g: "Personas y propiedades", items: [{ a: "/contactos", t: "Contactos", i: Users }, { a: "/propiedades", t: "Propiedades", i: Building2 }, { a: "/vencimientos", t: "Vencimientos", i: CalendarClock }] },
   { g: "Análisis", items: [{ a: "/resumen", t: "Resumen", i: TrendingUp }, { a: "/reportes", t: "Reportes", i: BarChart3 }] },

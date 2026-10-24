@@ -1,0 +1,14 @@
+{
+  "name": "crm-ysela-whatsapp-local",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": { "start": "node index.mjs", "test": "node --test core.test.mjs auth-state.test.mjs" },
+  "dependencies": {
+    "@supabase/supabase-js": "2.112.4",
+    "@whiskeysockets/baileys": "7.0.0-rc14",
+    "dotenv": "^16.6.1",
+    "pino": "^9.7.0",
+    "qrcode": "^1.5.4"
+  }
+}
